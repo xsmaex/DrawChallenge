@@ -50,5 +50,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(process.env.PORT || 8080, '0.0.0.0', function() {
-  console.log(`Server running at https://${process.env.xsmaex}.github.io/DrawChallenge/`);
+  console.log(`Server running at https://${process.env.USERNAME}.github.io/DrawChallenge/`);
 });
