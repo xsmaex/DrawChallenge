@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Character Swap Challenge</title>
+</head>
+<body>
+  <h1>Character Swap Challenge</h1>
+  <button id="generateBtn">Generate Challenge</button>
+  <div id="challengeDisplay"></div>
+  <script>
+    const generateBtn = document.getElementById('generateBtn');
+    const challengeDisplay = document.getElementById('challengeDisplay');
+    generateBtn.addEventListener('click', () => {
+      fetch('/generate')
+        .then(response => response.text())
+        .then(challenge => {
+          challengeDisplay.textContent = challenge;
+        })
+        .catch(error => console.error(error));
+    });
+  </script>
+</body>
+</html>
