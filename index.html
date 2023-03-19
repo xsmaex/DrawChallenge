@@ -11,7 +11,7 @@
     const generateBtn = document.getElementById('generateBtn');
     const challengeDisplay = document.getElementById('challengeDisplay');
     generateBtn.addEventListener('click', () => {
-      fetch('/generate')
+      fetch('/DrawChallenge/generate')
         .then(response => response.text())
         .then(challenge => {
           challengeDisplay.textContent = challenge;
