@@ -10,8 +10,9 @@
   <script>
     const generateBtn = document.getElementById('generateBtn');
     const challengeDisplay = document.getElementById('challengeDisplay');
+    const url = 'https://xsmaex.github.io/DrawChallenge/generate';
     generateBtn.addEventListener('click', () => {
-      fetch('/DrawChallenge/generate')
+      fetch('url')
         .then(response => response.text())
         .then(challenge => {
           challengeDisplay.textContent = challenge;
