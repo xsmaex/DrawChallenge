@@ -1,51 +1,75 @@
-const fs = require('fs');
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
-// Read input file and parse into array of series and characters
-const input = fs.readFileSync('input.txt', 'utf8').trim();
-const seriesList = input.split('\n').map(line => line.trim().split(';'));
+const inputFilePath = path.join(__dirname, 'input.txt');
+const MIME_TYPES = {
+  '.html': 'text/html',
+  '.css': 'text/css',
+  '.js': 'text/javascript',
+  '.json': 'application/json',
+  '.png': 'image/png',
+  '.jpg': 'image/jpg',
+  '.gif': 'image/gif',
+};
 
-// Helper function to select a random element from an array
-function randomChoice(arr) {
+// Load input file
+const inputText = fs.readFileSync(inputFilePath, 'utf-8');
+const lines = inputText.trim().split('\n');
+const seriesCharacters = lines.map((line) => {
+  const [series, ...characters] = line.trim().split(';');
+  return {
+    series,
+    characters,
+  };
+});
+
+function getRandomElement(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// Generate a random character swap
-function generateSwap() {
-  const [sourceSeries, ...sourceChars] = randomChoice(seriesList);
-  let targetSeries, targetChar;
-  do {
-    [targetSeries, ...targetChars] = randomChoice(seriesList);
-    targetChar = randomChoice(targetChars);
-  } while (targetSeries === sourceSeries);
-  return `${targetChar} (${targetSeries}) in the style of ${sourceSeries}`;
+function generateChallenge() {
+  const series1 = getRandomElement(seriesCharacters);
+  const series2Candidates = seriesCharacters.filter(
+    (series) => series.series !== series1.series
+  );
+  const series2 = getRandomElement(series2Candidates);
+  const character1 = getRandomElement(series1.characters);
+  const character2 = getRandomElement(series2.characters);
+  const challenge = `Draw ${character1} (${series1.series}) in the style of ${series2.series}`;
+  return challenge;
 }
 
-// Create a simple HTTP server
 const server = http.createServer((req, res) => {
-  if (req.url === '/') {
-    // Serve the index.html file
-    fs.readFile('index.html', (err, data) => {
-      if (err) {
-        res.writeHead(404, {'Content-Type': 'text/html'});
-        res.write('404 Not Found');
-        return res.end();
+  if (req.url === '/' || req.url === '/index.html') {
+    const filePath = path.join(__dirname, 'index.html');
+    const contentType = MIME_TYPES['.html'];
+    fs.readFile(filePath, (error, content) => {
+      if (error) {
+        res.writeHead(500);
+        res.end(`Error loading ${filePath}`);
+      } else {
+        res.writeHead(200, { 'Content-Type': contentType });
+        res.end(content, 'utf-8');
       }
-      res.writeHead(200, {'Content-Type': 'text/html'});
-      res.write(data);
-      return res.end();
     });
   } else if (req.url === '/generate') {
-    // Generate a random character swap and send as response
-    const swap = generateSwap();
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.write(swap);
-    return res.end();
+    const challenge = generateChallenge();
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end(challenge);
   } else {
-    // Handle all other requests with a 404 error
-    res.writeHead(404, {'Content-Type': 'text/html'});
-    res.write('404 Not Found');
-    return res.end();
+    const filePath = path.join(__dirname, req.url);
+    const extension = path.extname(filePath);
+    const contentType = MIME_TYPES[extension] || 'text/plain';
+    fs.readFile(filePath, (error, content) => {
+      if (error) {
+        res.writeHead(404);
+        res.end(`File not found: ${req.url}`);
+      } else {
+        res.writeHead(200, { 'Content-Type': contentType });
+        res.end(content, 'utf-8');
+      }
+    });
   }
 });
 
