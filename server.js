@@ -49,6 +49,6 @@ const server = http.createServer((req, res) => {
   }
 });
 
-server.listen(process.env.PORT || 8080, function() {
+server.listen(process.env.PORT || 80, function() {
   console.log(`Server running at https://${process.env.USERNAME}.github.io/DrawChallenge/`);
 });
