@@ -21,12 +21,32 @@ function generateSwap() {
   return `${targetChar} (${targetSeries}) in the style of ${sourceSeries}`;
 }
 
-// Create a simple HTTP server that sends the character swap as response
+// Create a simple HTTP server
 const server = http.createServer((req, res) => {
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  const swap = generateSwap();
-  res.write(`<h1>${swap}</h1>`);
-  res.end();
+  if (req.url === '/') {
+    // Serve the index.html file
+    fs.readFile('index.html', (err, data) => {
+      if (err) {
+        res.writeHead(404, {'Content-Type': 'text/html'});
+        res.write('404 Not Found');
+        return res.end();
+      }
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.write(data);
+      return res.end();
+    });
+  } else if (req.url === '/generate') {
+    // Generate a random character swap and send as response
+    const swap = generateSwap();
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.write(swap);
+    return res.end();
+  } else {
+    // Handle all other requests with a 404 error
+    res.writeHead(404, {'Content-Type': 'text/html'});
+    res.write('404 Not Found');
+    return res.end();
+  }
 });
 
 server.listen(8080);
